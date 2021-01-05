@@ -1,5 +1,6 @@
 import random
 from random import randint, shuffle
+import timeit
 
 grid = [[0 for x in range(9)] for y in range(9)]
 numberList=[1,2,3,4,5,6,7,8,9]
@@ -83,6 +84,7 @@ def solveBT(grid):
             grid[row][col] = 0
 
     return False
+
 
 #A backtracking/recursive function to check all possible combinations of numbers until a solution is found
 def initialSolve(grid):
@@ -185,13 +187,12 @@ def fillGrid(grid):
 
 #Generate a Fully Solved Grid
 fillGrid(grid)
-print_board(grid)
 
 # Start Removing Numbers one by one
 
 # A higher number of attempts will end up removing more numbers from the grid
 # Potentially resulting in more difficult grids to solve!
-attempts = 5
+attempts = 1
 print ("Attempts: ", attempts)
 counter = 1
 while attempts > 0:
@@ -221,8 +222,23 @@ while attempts > 0:
         # We could stop here, but we can also have another attempt with a different cell just to try to remove more numbers
         attempts -= 1
 
+#wyświetla liczbę cyfr w ostatecznej wersji planszy
+difficulty = 0
+for i in range(0, 81):
+    row = i // 9
+    col = i % 9
+    if grid[row][col] != 0:
+        difficulty += 1
+
+
+print("Difficulty: ", difficulty)
 print_board(grid)
 print("Sudoku Grid Ready")
-solveBT(grid)
+
+#pomiar czasu dla algorytmu backtrackingowego
+backtracking_time = "solveBT(grid)"
+elapsed_time = timeit.timeit(backtracking_time, "from __main__ import solveBT, grid", number=100) / 100
+
 print_board(grid)
+print("Backtracking algorithm time: ", elapsed_time)
 print("Backtracking algorithm solution")
