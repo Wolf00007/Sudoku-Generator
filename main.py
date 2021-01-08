@@ -1,3 +1,4 @@
+import operator
 import random
 from random import randint, shuffle
 import timeit
@@ -58,6 +59,31 @@ def check_valid_BF(grid):
             return False
 
     return True
+
+
+def check_possible_values_BB(grid):
+    empties = find_all_empty(grid)
+    mesh = np.array(grid)
+
+    values = []
+    numbers = [1,2,3,4,5,6,7,8,9,0]
+
+    boxes = np.array([[mesh[:3,:3], mesh[:3, 3:6], mesh[:3, 6:9]],
+                     [[mesh[3:6, :3]], mesh[3:6, 3:6], mesh[3:6, 6:9]],
+                     [mesh[6:9, :3], mesh[6:9, 3:6], mesh[6:9, 6:9]]])
+
+
+    for empty in empties:
+        horizontal_diff = np.setdiff1d(numbers, mesh[empty[0],:])
+        vertical_diff = np.setdiff1d(numbers, mesh[:,empty[1]])
+        box_diff = np.setdiff1d(numbers, boxes[empty[0]//3,empty[1]//3])
+        helper = np.intersect1d(horizontal_diff, vertical_diff)
+        possible_values = np.intersect1d(helper, box_diff)
+        values.append([[empty[0],empty[1]], possible_values.tolist()])
+
+    values = sorted(values, key=lambda x : len(x[1]))
+    return values
+
 
 # print the grid
 def print_board(grid):
@@ -157,6 +183,48 @@ def solveBF(grid):
 
 
     return solved
+
+def solveBB(grid):
+    possible_values = check_possible_values_BB(grid)
+
+    for spot in possible_values:
+
+        if len(possible_values[0][1]) == 1:
+            for spot in possible_values:
+                if len(spot[1]) == 1:
+                    grid[spot[0][0]][spot[0][1]] = spot[1][0]
+                elif solveBB(grid):
+                    return True
+
+
+            print_board(grid)
+
+            if solveBB(grid):
+                return True
+        else:
+            for value in spot[1]:
+                if check_valid(grid, spot[0][0], spot[0][1], value):
+                    x = spot[0][0]
+                    y = spot[0][1]
+                    z = value
+                    grid[x][y] = value
+
+                    if solveBB(grid):
+                        return True
+
+                    grid[spot[0][0]][spot[0][1]] = 0
+                print_board(grid)
+
+    find = find_empty(grid)
+    if not find:
+        return True
+
+    return False
+
+
+
+
+
 
 
 #A backtracking/recursive function to check all possible combinations of numbers until a solution is found
@@ -265,7 +333,7 @@ fillGrid(grid)
 
 # A higher number of attempts will end up removing more numbers from the grid
 # Potentially resulting in more difficult grids to solve!
-attempts = 1
+attempts = 10
 print ("Attempts: ", attempts)
 counter = 1
 while attempts > 0:
@@ -308,6 +376,12 @@ print("Difficulty: ", difficulty)
 print_board(grid)
 print("Sudoku Grid Ready")
 
+solveBB(grid)
+
+print_board(grid)
+
+print(check_valid_BF(grid))
+
 # #pomiar czasu dla algorytmu backtrackingowego
 # backtracking_time = "solveBT(grid)"
 # elapsed_time = timeit.timeit(backtracking_time, "from __main__ import solveBT, grid", number=100) / 100
@@ -316,10 +390,10 @@ print("Sudoku Grid Ready")
 # print("Backtracking algorithm time: ", elapsed_time)
 # print("Backtracking algorithm solution")
 
-#pomiar czasu dla algorytmu bruteforcowego
-bruteforce_time = "solveBF(grid)"
-elapsed_time = timeit.timeit(bruteforce_time, "from __main__ import solveBF, grid", number=100) / 100
-
-print_board(grid)
-print("Bruteforce algorithm time: ", elapsed_time)
-print("Bruteforce algorithm solution")
+# #pomiar czasu dla algorytmu bruteforcowego
+# bruteforce_time = "solveBF(grid)"
+# elapsed_time = timeit.timeit(bruteforce_time, "from __main__ import solveBF, grid", number=100) / 100
+#
+# print_board(grid)
+# print("Bruteforce algorithm time: ", elapsed_time)
+# print("Bruteforce algorithm solution")
