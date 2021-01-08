@@ -1,6 +1,7 @@
 import random
 from random import randint, shuffle
 import timeit
+import numpy as np
 
 grid = [[0 for x in range(9)] for y in range(9)]
 numberList=[1,2,3,4,5,6,7,8,9]
@@ -28,6 +29,36 @@ def check_valid(mesh,r,c,n):
                 break
     return valid
 
+def check_valid_BF(grid):
+    mesh = np.array(grid)
+    for n in range(9):
+        if len(set(mesh[:,n])) != 9:
+            return False
+        if len(set(mesh[n,:])) != 9:
+            return False
+
+
+    a = mesh[:3,:3]
+    b = mesh[:3, 3:6]
+    c = mesh[:3, 6:9]
+
+    d = mesh[3:6, :3]
+    e = mesh[3:6, 3:6]
+    f = mesh[3:6, 6:9]
+
+    g = mesh[6:9, :3]
+    h = mesh[6:9, 3:6]
+    i = mesh[6:9, 6:9]
+
+
+    boxes = [a,b,c,d,e,f,g,h,i]
+
+    for box in boxes:
+        if len(np.unique(box)) != 9:
+            return False
+
+    return True
+
 # print the grid
 def print_board(grid):
 
@@ -36,14 +67,18 @@ def print_board(grid):
         cnt_j = 0
         for j in range(13):
             if i%4==0:
-                print("+---------+---------+---------+",end="")
+                print("+------------+------------+------------+",end="")
                 cnt_i+=1
                 break
             elif j%4==0:
                 print("|",end="")
+
                 cnt_j+=1
             else:
-                print("",grid[i-cnt_i][j-cnt_j],"" ,end="")
+                if(grid[i-cnt_i][j-cnt_j]==0):
+                    print("", " ", "", end="|")
+                else:
+                    print("",grid[i-cnt_i][j-cnt_j],"" ,end="|")
         print()
 
 # find an empty square (0)
@@ -53,6 +88,14 @@ def find_empty(grid):
             if grid[i][j] == 0:
                 return (i, j) # row, col
     return None
+
+def find_all_empty(grid):
+    empties = []
+    for i in range(len(grid)):
+        for j in range(len(grid[0])):
+            if grid[i][j] == 0:
+                empties.append([i, j])  # row, col
+    return empties
 
 #A function to check if the grid is full
 def checkGrid(grid):
@@ -84,6 +127,36 @@ def solveBT(grid):
             grid[row][col] = 0
 
     return False
+
+
+def solveBF(grid):
+
+    solved = check_valid_BF(grid)
+    cells = find_all_empty(grid)
+
+    for cell in cells:
+        grid[cell[0]][cell[1]] = 1
+
+    solution = 0
+
+    for i in range(len(cells)):
+        solution = solution + (pow(10,i))
+
+    solved = check_valid_BF(grid)
+    counter = 1
+
+    while solved==False:
+        counter +=1
+        solution += 1
+        string_solution = str(solution).replace("0","1")
+        solution = int(string_solution)
+        for i in range(len(cells)):
+            grid[cells[i][0]][cells[i][1]] = int(string_solution[i])
+        # print_board(grid)
+        solved = check_valid_BF(grid)
+
+
+    return solved
 
 
 #A backtracking/recursive function to check all possible combinations of numbers until a solution is found
@@ -235,10 +308,18 @@ print("Difficulty: ", difficulty)
 print_board(grid)
 print("Sudoku Grid Ready")
 
-#pomiar czasu dla algorytmu backtrackingowego
-backtracking_time = "solveBT(grid)"
-elapsed_time = timeit.timeit(backtracking_time, "from __main__ import solveBT, grid", number=100) / 100
+# #pomiar czasu dla algorytmu backtrackingowego
+# backtracking_time = "solveBT(grid)"
+# elapsed_time = timeit.timeit(backtracking_time, "from __main__ import solveBT, grid", number=100) / 100
+#
+# print_board(grid)
+# print("Backtracking algorithm time: ", elapsed_time)
+# print("Backtracking algorithm solution")
+
+#pomiar czasu dla algorytmu bruteforcowego
+bruteforce_time = "solveBF(grid)"
+elapsed_time = timeit.timeit(bruteforce_time, "from __main__ import solveBF, grid", number=100) / 100
 
 print_board(grid)
-print("Backtracking algorithm time: ", elapsed_time)
-print("Backtracking algorithm solution")
+print("Bruteforce algorithm time: ", elapsed_time)
+print("Bruteforce algorithm solution")
