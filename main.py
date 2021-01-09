@@ -185,35 +185,43 @@ def solveBF(grid):
     return solved
 
 def solveBB(grid):
-    possible_values = check_possible_values_BB(grid)
 
-    for spot in possible_values:
+    def recursion(grid, possible_values):
+        spot = possible_values[0]
+        x = spot[0][0]
+        y = spot[0][1]
+        for value in spot[1]:
 
-        if len(possible_values[0][1]) == 1:
-            for spot in possible_values:
-                if len(spot[1]) == 1:
-                    grid[spot[0][0]][spot[0][1]] = spot[1][0]
-                elif solveBB(grid):
+            if check_valid(grid, spot[0][0], spot[0][1], value):
+
+                grid[x][y] = value
+
+                find = find_empty(grid)
+                if not find:
+                    print("Found a solution.\n")
                     return True
 
+                if recursion(grid, possible_values[1:]):
+                    return True
 
-            print_board(grid)
+                grid[spot[0][0]][spot[0][1]] = 0
+                # print_board(grid)
+        return False
 
-            if solveBB(grid):
-                return True
-        else:
-            for value in spot[1]:
-                if check_valid(grid, spot[0][0], spot[0][1], value):
-                    x = spot[0][0]
-                    y = spot[0][1]
-                    z = value
-                    grid[x][y] = value
+    possible_values = check_possible_values_BB(grid)
 
-                    if solveBB(grid):
-                        return True
+    if len(possible_values[0][1]) == 1:
+        for spot in possible_values:
+            if len(spot[1]) == 1:
+                grid[spot[0][0]][spot[0][1]] = spot[1][0]
+            else:
+                return solveBB(grid)
+    else:
+        print("Filled all possible single values. \n")
+        # print_board(grid)
+        return recursion(grid,possible_values)
 
-                    grid[spot[0][0]][spot[0][1]] = 0
-                print_board(grid)
+
 
     find = find_empty(grid)
     if not find:
