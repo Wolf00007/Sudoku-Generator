@@ -379,29 +379,34 @@ for i in range(0, 81):
     if grid[row][col] != 0:
         difficulty += 1
 
-
 print("Difficulty: ", difficulty)
 print_board(grid)
 print("Sudoku Grid Ready")
 
-solveBB(grid)
+bb_grid = grid.copy()
+bt_grid = grid.copy()
+bf_grid = grid.copy()
+
+#pomiar czasu dla algorytmu branch&bound
+bb_time = "solveBB(bb_grid)"
+elapsed_time = timeit.timeit(bb_time, "from __main__ import solveBB, bb_grid", number=1)
 
 print_board(grid)
+print("Branch & Bound algorithm time [ms]: ", elapsed_time*1000)
+print("Branch & Bound algorithm solution")
 
-print(check_valid_BF(grid))
+#pomiar czasu dla algorytmu backtrackingowego
+backtracking_time = "solveBT(bt_grid)"
+elapsed_time = timeit.timeit(backtracking_time, "from __main__ import solveBT, bt_grid", number=1)
 
-# #pomiar czasu dla algorytmu backtrackingowego
-# backtracking_time = "solveBT(grid)"
-# elapsed_time = timeit.timeit(backtracking_time, "from __main__ import solveBT, grid", number=100) / 100
-#
-# print_board(grid)
-# print("Backtracking algorithm time: ", elapsed_time)
-# print("Backtracking algorithm solution")
+print_board(grid)
+print("Backtracking algorithm time [ms]: ", elapsed_time*1000)
+print("Backtracking algorithm solution")
 
-# #pomiar czasu dla algorytmu bruteforcowego
-# bruteforce_time = "solveBF(grid)"
-# elapsed_time = timeit.timeit(bruteforce_time, "from __main__ import solveBF, grid", number=100) / 100
-#
-# print_board(grid)
-# print("Bruteforce algorithm time: ", elapsed_time)
-# print("Bruteforce algorithm solution")
+#pomiar czasu dla algorytmu bruteforcowego
+'''bruteforce_time = "solveBF(grid)"
+elapsed_time = timeit.timeit(bruteforce_time, "from __main__ import solveBF, grid", number=1)
+
+print_board(grid)
+print("Bruteforce algorithm time [ms]: ", elapsed_time*1000)
+print("Bruteforce algorithm solution")'''
