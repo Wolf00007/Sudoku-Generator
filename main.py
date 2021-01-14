@@ -1,3 +1,4 @@
+import copy
 import operator
 import random
 from random import randint, shuffle
@@ -230,6 +231,52 @@ def solveBB(grid):
     return False
 
 
+def solveBB_2(grid):
+
+    def recursion(grid, possible_values):
+        spot = possible_values[0]
+        x = spot[0][0]
+        y = spot[0][1]
+        for value in spot[1]:
+
+            if check_valid(grid, spot[0][0], spot[0][1], value):
+
+                grid[x][y] = value
+
+                find = find_empty(grid)
+                if not find:
+                    print("Found a solution.\n")
+                    return True
+
+                if recursion(grid, possible_values[1:]):
+                    return True
+
+                grid[spot[0][0]][spot[0][1]] = 0
+                # print_board(grid)
+        return False
+
+    possible_values = check_possible_values_BB(grid)
+
+    if len(possible_values[0][1]) == 1:
+        for spot in possible_values:
+            if len(spot[1]) == 1:
+                grid[spot[0][0]][spot[0][1]] = spot[1][0]
+            else:
+                return recursion(grid, possible_values)
+    else:
+        print("Filled all possible single values. \n")
+        # print_board(grid)
+        return recursion(grid,possible_values)
+
+
+
+    find = find_empty(grid)
+    if not find:
+        return True
+
+    return False
+
+
 
 
 
@@ -383,25 +430,48 @@ print("Difficulty: ", difficulty)
 print_board(grid)
 print("Sudoku Grid Ready")
 
-bb_grid = grid.copy()
-bt_grid = grid.copy()
-bf_grid = grid.copy()
+bb_grid = copy.deepcopy(grid)
+bb_2_grid = copy.deepcopy(grid)
+bt_grid = copy.deepcopy(grid)
+bf_grid = copy.deepcopy(grid)
+
+solveBB(bb_grid)
+# solveBB_2(bb_2_grid)
+solveBT(bt_grid)
+
+# for i in range(20):
+#     new_grid = copy.deepcopy(grid)
+#     solveBB(new_grid)
+#     print_board(new_grid)
+
+# #pomiar czasu dla algorytmu branch&bound
+# bb_time = "solveBB_2(copy.deepcopy(grid))"
+# elapsed_time = timeit.timeit(bb_time, "from __main__ import solveBB_2, copy, grid", number=2)
+#
+#
+# print("Alternative Branch & Bound algorithm time [ms]: ", elapsed_time*1000)
+# print("Alternative Branch & Bound algorithm solution")
+# print_board(bb_2_grid)
 
 #pomiar czasu dla algorytmu branch&bound
-bb_time = "solveBB(bb_grid)"
-elapsed_time = timeit.timeit(bb_time, "from __main__ import solveBB, bb_grid", number=1)
+bb_time = "solveBB(copy.deepcopy(grid))"
+elapsed_time = timeit.timeit(bb_time, "from __main__ import solveBB, copy, grid", number=5)
 
-print_board(grid)
+
 print("Branch & Bound algorithm time [ms]: ", elapsed_time*1000)
 print("Branch & Bound algorithm solution")
+print_board(bb_grid)
+
+
 
 #pomiar czasu dla algorytmu backtrackingowego
-backtracking_time = "solveBT(bt_grid)"
-elapsed_time = timeit.timeit(backtracking_time, "from __main__ import solveBT, bt_grid", number=1)
+backtracking_time = "solveBT(copy.deepcopy(grid))"
+elapsed_time = timeit.timeit(backtracking_time, "from __main__ import solveBT, copy, grid", number=5)
 
-print_board(grid)
+
 print("Backtracking algorithm time [ms]: ", elapsed_time*1000)
 print("Backtracking algorithm solution")
+print_board(bt_grid)
 
 #pomiar czasu dla algorytmu bruteforcowego
 '''bruteforce_time = "solveBF(grid)"
